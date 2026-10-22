@@ -10,4 +10,4 @@ frontend/node_modules/
 
 backend/weights/
 backend/pycache/
-/backend/medivision_v2.db/
+/backend/medivision_v2.db
