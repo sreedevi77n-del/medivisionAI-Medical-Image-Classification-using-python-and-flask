@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Help - MediVision AI</title><link rel="stylesheet" href="css/style.css"></head>
+<body class="bg"><script src="js/app.js"></script><script>navbar("support")</script>
+<main class="wrap"><h1>Help &amp; Support</h1><br>
+<div class="emerg">Medical emergency? In case of a medical emergency, seek immediate medical attention or contact your nearest emergency services.
+
+
+</div>
+<div class="grid"><div class="card"><h2>FAQ</h2><input id="q" placeholder="Search FAQs"><div id="faq"></div></div>
+<div class="card"><h2>Contact support / feedback</h2><select id="k"><option>Support</option><option>Feedback</option><option>Bug report</option></select><input id="s" placeholder="Subject"><input id="m" placeholder="Your message"><br><button class="btn" id="send">Send</button></div>
+<div class="card"><h2>Documentation</h2><p class="warn"><b>Upload:</b> any image file (JPG, PNG, BMP, GIF, WEBP, TIFF…) up to 10 MB, choose X-Ray/CT/MRI, optional Patient ID.<br><b>Classification:</b> label, confidence and class probabilities.<br><b>Explainable AI:</b> Grad-CAM overlay shows influential regions.<br><b>Report:</b> print or Save as PDF.</p></div>
+<div class="card"><h2>About MediVision AI</h2><p class="warn">Medivision AI is an intelligent healthcare platform powered by Artificial Intelligence.
+It helps analyze medical images and reports efficiently.
+The platform provides AI-assisted insights to support medical diagnosis.
+Users can upload medical files in supported formats for analysis.
+It offers clear visualizations and illustrative sample metrics.
+Medivision AI aims to make healthcare information more accessible and understandable.
+Our mission is to support smarter, faster, and more informed healthcare decisions.</p></div></div></main>
+<script>
+const F=[["What file types can I upload?","Any image file: JPG, PNG, BMP, GIF, WEBP, TIFF and similar, up to 10 MB. Documents such as PDF or Word cannot be analysed because the model reads images only."],["Is the prediction a diagnosis?","It is a decision-support output that a qualified clinician must review."],["What does the heatmap show?","Grad-CAM highlights image regions that influenced the model's output the most."],["How do I get a PDF report?","Open a report and press Download PDF, then choose Save as PDF."],["How do I link scans to a patient?","Add the patient on the Patients page and type the same Patient ID when uploading."]];
+function show(){const t=q.value.toLowerCase();faq.innerHTML=F.filter(x=>(x[0]+x[1]).toLowerCase().includes(t)).map(x=>`<details><summary>${x[0]}</summary><p class="warn">${x[1]}</p></details>`).join("")||'<p class="warn">No match.</p>'}
+q.oninput=show;show();
+send.onclick=async()=>{try{await jsend("/support",{kind:k.value,subject:s.value,message:m.value});s.value=m.value="";toast("Message saved. Thank you!")}catch(x){toast(x.message,true)}};
+</script></body></html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>History - MediVision AI</title><link rel="stylesheet" href="css/style.css"></head>
+<body class="bg"><script src="js/app.js"></script><script>navbar("history")</script>
+<main class="wrap"><h1>Scan History</h1><br>
+<div class="row"><input id="q" placeholder="Search patient ID / result / scan #"><select id="t"><option value="">All types</option><option>X-Ray</option><option>CT Scan</option><option>MRI</option></select><input id="f" type="date"><input id="to" type="date"></div>
+<div class="card scroll"><table><thead><tr><th></th><th>#</th><th>Patient</th><th>Type</th><th>Result</th><th>Date</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="row" style="margin-top:14px"><button class="btn ghost sm" id="prev">← Prev</button><span id="pg"></span><button class="btn ghost sm" id="next">Next →</button></div></main>
+<div class="modal" id="dm"><div class="card"><h2>Delete this scan?</h2><p class="warn">This cannot be undone.</p><br><button class="btn red" id="yes">Delete</button> <button class="btn ghost" onclick="modal('dm',false)">Cancel</button></div></div>
+<script>
+let page=1,total=0,del=null;const PER=8;
+async function load(){
+ const qs=new URLSearchParams({q:q.value,type:t.value,from:f.value,to:to.value,page,per:PER});
+ const d=await api("/scans?"+qs);total=d.total;
+ rows.innerHTML=d.items.map(r=>`<tr><td><img src="${r.thumb}"></td><td>${r.id}</td><td>${esc(r.patient_id)||"-"}</td><td>${esc(r.scan_type)}</td><td><span class="pill ${esc(r.label)}">${esc(r.label)} ${r.confidence}%</span></td><td>${esc(r.created)}</td>
+ <td><a class="btn sm" href="classification.html?id=${r.id}">View</a> <button class="btn sm red" onclick="del=${r.id};modal('dm',true)">Delete</button></td></tr>`).join("")||'<tr><td colspan="7">No scans found.</td></tr>';
+ pg.textContent=`Page ${page} of ${Math.max(Math.ceil(total/PER),1)} (${total} scans)`;prev.disabled=page<=1;next.disabled=page*PER>=total}
+[q,t,f,to].forEach(e=>e.oninput=()=>{page=1;load()});
+prev.onclick=()=>{page--;load()};next.onclick=()=>{page++;load()};
+yes.onclick=async()=>{await api("/scans/"+del,{method:"DELETE"});modal("dm",false);toast("Scan deleted");load()};
+load().catch(e=>toast(e.message,true));
+</script></body></html>

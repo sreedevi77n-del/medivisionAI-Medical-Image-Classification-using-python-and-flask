@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign up - MediVision AI</title><link rel="stylesheet" href="css/style.css"></head>
+<body class="bg"><script src="js/app.js"></script><script>pubnav()</script>
+<main class="wrap"><div class="card" style="max-width:480px;margin:auto"><h2>Create Account</h2>
+<input id="fn" placeholder="Full name"><div class="err" id="e0"></div>
+<input id="email" type="email" placeholder="Email"><div class="err" id="e1"></div>
+<select id="role"><option>Radiologist</option><option>Physician</option><option>Technician</option><option>Student / Researcher</option></select><div class="err"></div>
+<input id="pw" type="password" placeholder="Password (8+ characters)"><div class="meter"><i id="m"></i></div><div class="err" id="e2"></div>
+<input id="pw2" type="password" placeholder="Confirm password"><div class="err" id="e3"></div>
+<label><input type="checkbox" id="tc" style="width:auto"> I understand this tool gives decision-support output, not diagnoses.</label><div class="err" id="e4"></div>
+<button class="btn" id="go" style="width:100%">Sign up →</button><p class="warn"><a href="login.html">Have an account? Login</a></p></div></main>
+<script>
+pw.oninput=()=>{const v=pw.value;let s=(v.length>=8)+(/[A-Z]/.test(v))+(/\d/.test(v))+(/[^A-Za-z0-9]/.test(v));
+  m.style.width=s*25+"%";m.style.background=["#dc2626","#dc2626","#f59e0b","#16a34a","#16a34a"][s]};   // strength meter
+go.onclick=async()=>{
+  [e0,e1,e2,e3,e4].forEach(e=>e.textContent="");let bad=false;
+  if(!fn.value.trim()){e0.textContent="Enter your name";bad=true}
+  if(!/^\S+@\S+\.\S+$/.test(email.value)){e1.textContent="Enter a valid email";bad=true}
+  if(pw.value.length<8){e2.textContent="Use 8+ characters";bad=true}
+  if(pw.value!==pw2.value){e3.textContent="Passwords do not match";bad=true}
+  if(!tc.checked){e4.textContent="Please accept to continue";bad=true}
+  if(bad)return;
+  try{await jsend("/register",{name:fn.value,email:email.value,password:pw.value,role:role.value});toast("Account created");setTimeout(()=>location.href="login.html",900)}
+  catch(x){toast(x.message,true)}};
+</script></body></html>

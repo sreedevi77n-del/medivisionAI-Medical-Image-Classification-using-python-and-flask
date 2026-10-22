@@ -1,0 +1,18 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard - MediVision AI</title><link rel="stylesheet" href="css/style.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script></head>
+<body class="bg"><script src="js/app.js"></script><script>navbar("dashboard")</script>
+<main class="wrap"><h1 id="hi">Welcome</h1><p class="sub">Your scan activity at a glance.</p>
+<div class="grid" id="stats"></div>
+<div class="grid" style="margin-top:22px"><div class="card"><h2>Classification distribution</h2><canvas id="c1" height="200"></canvas></div><div class="card"><h2>Notifications</h2><div id="notes"></div></div></div>
+<h2 style="margin:26px 0 12px">Recent scans</h2><div class="thumbs" id="recent"></div><br><a class="btn" href="upload.html">+ Quick upload</a></main>
+<script>
+hi.textContent="Welcome, "+(localStorage.getItem("mv_name")||"clinician");
+(async()=>{
+ const s=await api("/stats"),h=await api("/health");
+ const n=k=>s.by_label[k]||0;
+ stats.innerHTML=[["Total scans",s.total],["Classified Normal",n("Normal")],["Classified Abnormal",n("Abnormal")],["Demo-mode scans",s.by_mode.demo||0]].map(([a,b])=>`<div class="card stat"><b>${b}</b><span>${a}</span></div>`).join("");
+ chart("c1",{type:"doughnut",data:{labels:Object.keys(s.by_label),datasets:[{data:Object.values(s.by_label),backgroundColor:["#16a34a","#dc2626"]}]}});
+ notes.innerHTML=(h.mode==="demo"?'<div class="demo">Smart insights, instant alerts, better healthcare! 🩺</div>':"")+(s.recent.map(r=>`<p class="warn">Scan #${r.id} classified ${esc(r.label)} (${r.confidence}%)</p>`).join("")||'<p class="warn">No activity yet.</p>');
+ recent.innerHTML=s.recent.map(r=>`<div class="card" onclick="location.href='classification.html?id=${r.id}'"><img src="${r.thumb}"><p><span class="pill ${esc(r.label)}">${esc(r.label)}</span></p><p class="warn">${esc(r.scan_type)} · ${r.confidence}% · ${esc(r.created)}</p></div>`).join("")||'<p class="warn">Upload your first scan.</p>';
+})();
+</script></body></html>

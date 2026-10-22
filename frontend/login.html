@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login - MediVision AI</title><link rel="stylesheet" href="css/style.css"></head>
+<body class="bg"><script src="js/app.js"></script><script>pubnav()</script>
+<main class="wrap"><div class="hero"><div><h1>Smarter AI. <span style="color:var(--lav)">Healthier</span> Tomorrows.</h1><p class="sub">Deep Learning-Based Medical Image Classification with Explainable AI</p></div>
+<div class="card"><h2>Welcome Back</h2>
+<input id="email" type="email" placeholder="Email address"><div class="err" id="e1"></div>
+<input id="pw" type="password" placeholder="Password"><div class="err" id="e2"></div>
+<label><input type="checkbox" id="show" style="width:auto"> Show password</label>
+<label style="margin-left:14px"><input type="checkbox" id="rem" style="width:auto"> Remember me</label><br><br>
+<button class="btn" id="go" style="width:100%">Login →</button>
+<p class="warn"><a href="support.html" onclick="return false">Forgot password?</a> Ask your administrator to reset it (email reset is not set up).<br><a href="signup.html">New here? Create account</a></p></div></div></main>
+<script>
+if(localStorage.getItem("mv_email")){email.value=localStorage.getItem("mv_email");rem.checked=true}
+show.onchange=()=>pw.type=show.checked?"text":"password";
+go.onclick=async()=>{
+  e1.textContent=e2.textContent="";
+  if(!/^\S+@\S+\.\S+$/.test(email.value)) return e1.textContent="Enter a valid email";
+  if(!pw.value) return e2.textContent="Enter your password";
+  try{const u=await jsend("/login",{email:email.value,password:pw.value});
+    localStorage.setItem("mv_token",u.token);localStorage.setItem("mv_name",u.name);
+    rem.checked?localStorage.setItem("mv_email",email.value):localStorage.removeItem("mv_email");location.href="dashboard.html"}
+  catch(x){toast(x.message,true)}};
+</script></body></html>

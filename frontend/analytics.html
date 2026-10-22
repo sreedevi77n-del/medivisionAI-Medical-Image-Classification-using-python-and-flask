@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Analytics - MediVision AI</title><link rel="stylesheet" href="css/style.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script></head>
+<body class="bg"><script src="js/app.js"></script><script>navbar("analytics")</script>
+<main class="wrap"><h1>Analytics</h1><br><div class="row"><label>From</label><input id="f" type="date"><label>To</label><input id="to" type="date"></div>
+<div class="grid" id="sum"></div><br>
+<div class="grid"><div class="card"><h2>Monthly scan activity</h2><canvas id="c1" height="220"></canvas></div><div class="card"><h2>Normal vs abnormal</h2><canvas id="c2" height="220"></canvas></div><div class="card"><h2>Image category</h2><canvas id="c3" height="220"></canvas></div></div></main>
+<script>
+async function load(){const s=await api("/stats?from="+f.value+"&to="+to.value);
+ const n=k=>s.by_label[k]||0,ab=s.total?Math.round(100*n("Abnormal")/s.total):0;
+ sum.innerHTML=[["Total classified",s.total],["Normal",n("Normal")],["Abnormal",n("Abnormal")],["Abnormal rate",ab+"%"]].map(([a,b])=>`<div class="card stat"><b>${b}</b><span>${a}</span></div>`).join("");
+ chart("c1",{type:"bar",data:{labels:Object.keys(s.monthly),datasets:[{label:"Scans",data:Object.values(s.monthly),backgroundColor:"#42D9E8"}]}});
+ chart("c2",{type:"doughnut",data:{labels:Object.keys(s.by_label),datasets:[{data:Object.values(s.by_label),backgroundColor:["#dc2626","#16a34a"]}]}});
+ chart("c3",{type:"pie",data:{labels:Object.keys(s.by_type),datasets:[{data:Object.values(s.by_type),backgroundColor:COLORS}]}})}
+f.onchange=to.onchange=load;load().catch(e=>toast(e.message,true));
+</script></body></html>

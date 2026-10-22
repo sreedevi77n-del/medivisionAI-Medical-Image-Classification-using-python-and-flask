@@ -1,0 +1,16 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Classification - MediVision AI</title><link rel="stylesheet" href="css/style.css"></head>
+<body class="bg"><script src="js/app.js"></script><script>navbar("classification")</script>
+<main class="wrap"><h1>Prediction Result</h1><div id="out"></div></main>
+<script>
+loadScan().then(r=>{
+ if(!r){out.innerHTML='<p class="sub">Open a scan from History, or upload a new image.</p><a class="btn" href="upload.html">Upload an image</a>';return}
+ const bars=Object.entries(r.probabilities).map(([k,v])=>`<p>${esc(k)}: ${v}%</p><div class="bar"><i data-w="${v}"></i></div>`).join("");
+ const bad=r.label==="Abnormal";
+ out.innerHTML=`<div class="grid"><div class="card"><img class="pv" src="${r.original}"></div><div class="card">
+ <span class="pill ${esc(r.label)}">${bad?"⚠ ":"✓ "}${esc(r.label)}</span><h2 style="margin-top:16px">Confidence ${r.confidence}%</h2>${bars}
+ <p class="warn">${esc(r.scan_type)} · ${r.patient_id?"Patient "+esc(r.patient_id)+" · ":""}${esc(r.created)}</p>
+ <p class="warn"><b>Medical disclaimer:</b>A qualified clinician must review every result.</p></div></div><br>
+ <a class="btn" href="explainable-ai.html?id=${r.id}">View Explanation →</a> <a class="btn ghost" href="report.html?id=${r.id}">Open Report</a> <a class="btn ghost" href="upload.html">Analyze Another</a>`;
+ setTimeout(()=>document.querySelectorAll(".bar i").forEach(b=>b.style.width=b.dataset.w+"%"),50)}).catch(e=>toast(e.message,true));
+</script></body></html>

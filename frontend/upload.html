@@ -1,0 +1,35 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Upload - MediVision AI</title><link rel="stylesheet" href="css/style.css"></head>
+<body class="bg"><script src="js/app.js"></script><script>requireLogin();navbar("upload.html")</script>
+<main class="wrap"><h1>Upload Medical Image</h1><p class="sub">Choose or drag and drop any image file (JPG, PNG, BMP, GIF, WEBP, TIFF…) – max 10 MB.</p>
+<div class="drop" id="drop"><p>Drag &amp; drop your image here</p><br><button class="btn" id="pick">Choose Image →</button>
+<input type="file" id="file" hidden><br><br><img id="pv" class="pv" style="max-width:320px;margin:auto;display:none"></div>
+<div class="chips" id="chips"><span class="chip on">X-Ray</span><span class="chip">CT Scan</span><span class="chip">MRI</span></div>
+<input id="pid" placeholder="Patient ID (optional)" style="max-width:320px"><br>
+<button class="btn" id="go" disabled>Analyze Image →</button>
+<div id="prog" class="card" style="display:none;margin-top:20px;text-align:center"><h2>Analyzing Your Image</h2><div class="spin"></div><div class="bar"><i id="fill"></i></div><p id="pct">0%</p></div></main>
+<script>
+let f=null,type="X-Ray";
+chips.onclick=e=>{if(!e.target.classList.contains("chip"))return;chips.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));e.target.classList.add("on");type=e.target.textContent};
+pick.onclick=()=>file.click(); file.onchange=()=>take(file.files[0]);
+drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")}; drop.ondragleave=()=>drop.classList.remove("over");
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");take(e.dataTransfer.files[0])};
+
+function take(x){ // any file type: check size, then try to preview it as an image
+  if(!x) return;
+  if(x.size>10*1024*1024) return toast("File is larger than 10 MB",true);
+  pv.onerror=()=>{f=null;go.disabled=true;pv.style.display="none";
+    toast("This file type cannot be previewed or classified. Please upload an image.",true)};
+  pv.onload=()=>{f=x;go.disabled=false;toast("Image ready")};
+  pv.src=URL.createObjectURL(x);pv.style.display="block";
+}
+
+go.onclick=async()=>{
+  go.disabled=true;prog.style.display="block";let p=0;
+  const t=setInterval(()=>{p=Math.min(p+4,90);fill.style.width=p+"%";pct.textContent=p+"%"},150);  // visual progress; real wait is the API call
+  const fd=new FormData();fd.append("image",f);fd.append("scan_type",type);fd.append("patient_id",pid.value);
+  try{const r=await api("/predict",{method:"POST",body:fd});clearInterval(t);fill.style.width="100%";pct.textContent="100%";
+    setTimeout(()=>location.href="classification.html?id="+r.id,400)}
+  catch(x){clearInterval(t);prog.style.display="none";go.disabled=false;toast(x.message,true)}
+};
+</script></body></html>

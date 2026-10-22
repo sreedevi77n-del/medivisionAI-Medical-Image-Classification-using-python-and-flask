@@ -1,0 +1,21 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gallery - MediVision AI</title><link rel="stylesheet" href="css/style.css"></head>
+<body class="bg"><script src="js/app.js"></script><script>navbar("gallery")</script>
+<main class="wrap"><h1>Medical Image Gallery</h1><br>
+<div class="row"><input id="q" placeholder="Search patient ID / result"><select id="t"><option value="">All categories</option><option>X-Ray</option><option>CT Scan</option><option>MRI</option></select><button class="btn ghost sm" id="vw">List view</button></div>
+<div class="thumbs" id="g"></div></main>
+<div class="modal" id="zm"><div class="card" style="max-width:720px"><h2>Scan <span id="zi"></span></h2>
+<div class="cmp"><img id="za"><img class="top" id="zb" style="opacity:0"></div>
+<p class="warn">Before / after: slide to blend the Grad-CAM overlay over the original</p><input type="range" min="0" max="100" value="0" id="zs">
+<p class="warn" id="zmeta"></p><button class="btn ghost" onclick="modal('zm',false)">Close</button></div></div>
+<script>
+let list=false;
+async function load(){const d=await api("/scans?per=48&type="+encodeURIComponent(t.value)+"&q="+encodeURIComponent(q.value));
+ g.className="thumbs"+(list?" list":"");
+ g.innerHTML=d.items.map(r=>`<div class="card" onclick="zoom(${r.id})"><img src="${r.thumb}"><p><b>${esc(r.scan_type)}</b> <span class="pill ${esc(r.label)}" style="padding:2px 10px;font-size:.75rem">${esc(r.label)}</span></p><p class="warn" style="margin-top:4px">#${r.id} · ${esc(r.patient_id)||"no patient"} · ${esc(r.created)}</p></div>`).join("")||'<p class="sub">No images yet.</p>'}
+q.oninput=t.onchange=load;vw.onclick=()=>{list=!list;vw.textContent=list?"Grid view":"List view";load()};
+async function zoom(i){const r=await api("/scans/"+i);zi.textContent="#"+i;za.src=r.original;zb.src=r.heatmap;zs.value=0;zb.style.opacity=0;
+ zmeta.textContent=`${r.scan_type} · ${r.label} ${r.confidence}% · patient ${r.patient_id||"n/a"} · ${r.created} · source ${r.mode}`;modal("zm",true)}
+zs.oninput=()=>zb.style.opacity=zs.value/100;
+load().catch(e=>toast(e.message,true));
+</script></body></html>

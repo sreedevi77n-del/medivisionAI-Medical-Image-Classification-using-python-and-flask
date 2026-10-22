@@ -1,0 +1,17 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Report - MediVision AI</title><link rel="stylesheet" href="css/style.css"></head>
+<body class="bg"><script src="js/app.js"></script><script>navbar("report")</script>
+<main class="wrap"><div class="row noprint"><h1 style="flex:1">Diagnostic Report</h1><button class="btn" onclick="window.print()">Print report</button><button class="btn ghost" onclick="toast('In the print dialog choose Save as PDF');setTimeout(()=>window.print(),600)">Download PDF</button></div><div id="out"></div></main>
+<script>
+loadScan().then(r=>{
+ if(!r){out.innerHTML='<a class="btn" href="history.html">Pick a scan from History</a>';return}
+ const p=r.patient;
+ out.innerHTML=`<div class="card"><h2>MediVision AI: Imaging Report #${r.id}</h2><p class="warn">Generated ${esc(r.created)} UTC</p><hr>
+ <h3>Patient</h3><p>${p?`${esc(p.name)} · ID ${esc(p.pid)} · ${p.age||"?"} y · ${esc(p.sex)||"sex n/a"}`:`Patient ID: ${esc(r.patient_id)||"not provided"} (no matching patient record)`}</p>
+ <h3>Scan details</h3><p>Type: ${esc(r.scan_type)} · Source: ${r.mode==="model"?"trained model":"DEMO values"}</p>
+ <h3>AI classification</h3><p><span class="pill ${esc(r.label)}">${esc(r.label)}</span> Confidence ${r.confidence}% · ${Object.entries(r.probabilities).map(([k,v])=>esc(k)+" "+v+"%").join(" / ")}</p>
+ <div class="grid" style="margin:14px 0"><img class="pv" src="${r.original}"><img class="pv" src="${r.heatmap}"></div>
+ <h3>Findings summary</h3><p>The model classified this ${esc(r.scan_type)} image as <b>${esc(r.label)}</b> with ${r.confidence}% confidence. The Grad-CAM image (right) marks the regions that most influenced this output.</p>
+ <p style="margin-top:30px">Reviewing clinician: ____________________ Date: __________</p>
+ <div class="emerg" style="margin-top:20px">AI results are decision-support outputs,confirmed diagnoses. Diagnosis and treatment decisions must be made by a qualified clinician.</div></div>`}).catch(e=>toast(e.message,true));
+</script></body></html>

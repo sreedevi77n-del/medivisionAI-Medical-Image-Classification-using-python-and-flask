@@ -7,3 +7,5 @@ __pycache__/
 .env
 .env.*
 frontend/node_modules/
+
+backend/medivision_v2.db

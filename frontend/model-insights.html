@@ -1,0 +1,18 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Model Insights - MediVision AI</title><link rel="stylesheet" href="css/style.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script></head>
+<body class="bg"><script src="js/app.js"></script><script>navbar("model-insights")</script>
+<main class="wrap"><h1>AI Model Insights</h1><br><div id="flag"></div>
+<div class="grid" id="m"></div><br>
+<div class="grid"><div class="card"><h2>Metrics</h2><canvas id="c1" height="200"></canvas></div><div class="card"><h2>Confusion matrix</h2><div id="cm"></div></div>
+<div class="card"><h2>Accuracy per epoch</h2><canvas id="c2" height="200"></canvas></div><div class="card"><h2>Loss per epoch</h2><canvas id="c3" height="200"></canvas></div></div><br>
+<div class="card"><h2>Model information</h2><p id="info"></p><p class="warn">Architecture: ResNet-50 (transfer learning). Explainability: Grad-CAM on the last convolutional block. Run <code>python train.py</code> to replace sample numbers with real measured ones.</p></div></main>
+<script>
+(async()=>{const d=await api("/metrics"),pc=v=>(v*100).toFixed(1)+"%";
+ flag.innerHTML=d.measured?"":'<div class="demo">Explore Illustration Sample Metrices for AI powered medical Analysis and Healthcare Insights.</div>';
+ m.innerHTML=[["Accuracy",d.accuracy],["Precision",d.precision],["Recall",d.recall],["F1-score",d.f1]].map(([a,b])=>`<div class="card stat"><b>${pc(b)}</b><span>${a}</span></div>`).join("");
+ chart("c1",{type:"bar",data:{labels:["Accuracy","Precision","Recall","F1"],datasets:[{data:[d.accuracy,d.precision,d.recall,d.f1],backgroundColor:COLORS}]},options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:1}}}});
+ const c=d.confusion;cm.innerHTML=`<table class="cm"><tr><td></td><td>Pred Normal</td><td>Pred Abnormal</td></tr><tr><td>True Normal</td><td style="background:#16a34a33">${c[0][0]}</td><td style="background:#dc262633">${c[0][1]}</td></tr><tr><td>True Abnormal</td><td style="background:#dc262633">${c[1][0]}</td><td style="background:#16a34a33">${c[1][1]}</td></tr></table>`;
+ const ep=d.history.train_acc.map((_,i)=>"E"+(i+1)),ln=(a,b,k1,k2)=>({type:"line",data:{labels:ep,datasets:[{label:"Train",data:d.history[k1],borderColor:"#A78BFA"},{label:"Validation",data:d.history[k2],borderColor:"#36CFC9"}]}});
+ chart("c2",ln(0,0,"train_acc","val_acc"));chart("c3",ln(0,0,"train_loss","val_loss"));
+ info.textContent=`Version: ${d.version} · Dataset: ${d.dataset} · Test images: ${d.test_images}`})().catch(e=>toast(e.message,true));
+</script></body></html>

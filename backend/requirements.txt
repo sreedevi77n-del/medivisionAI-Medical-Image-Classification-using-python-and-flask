@@ -1,0 +1,7 @@
+flask
+flask-cors
+pillow
+numpy
+# Optional - needed only for the REAL model (see README):
+# torch
+# torchvision
