@@ -8,4 +8,6 @@ __pycache__/
 .env.*
 frontend/node_modules/
 
-backend/medivision_v2.db
+backend/weights/
+backend/pycache/
+/backend/medivision_v2.db/
