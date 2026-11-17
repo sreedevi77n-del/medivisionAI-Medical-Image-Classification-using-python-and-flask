@@ -152,7 +152,7 @@ MediVision-AI/
 ### 1. Clone the Repository
 
 ```bash
-git clone YOUR_GITHUB_REPOSITORY_URL
+https://github.com/sreedevi77n-del/medivisionAI-Medical-Image-Classification-using-python-and-flask.git
 ```
 
 ### 2. Open the Project
